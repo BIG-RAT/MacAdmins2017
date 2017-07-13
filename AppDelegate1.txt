@@ -1,0 +1,61 @@
+script AppDelegate
+	property parent : class "NSObject"
+	
+	-- IBOutlets
+	property theWindow : missing value
+	property compName_field : missing value
+    
+	on rename_(sender)
+		set newName to compName_field's stringValue()
+
+		do shell script ("\
+		/usr/sbin/scutil --set ComputerName \"" & newName & "\"\
+		/usr/sbin/scutil --set LocalHostName \"" & newName & "\"\
+		/usr/sbin/scutil --set HostName \"" & newName & "\"\
+		\
+		jamfBin=$(which jamf)\
+		$jamfBin recon")
+
+		quit
+	end rename
+    
+	on cancel_(sender)
+		quit
+	end cancel_
+        
+	on applicationWillFinishLaunching_(aNotification)
+        -- Insert code here to initialize your application before any files are opened
+        #!/bin/bash
+        # check that script is run as root user
+#        do shell script ("if [ $EUID -ne 0 ]\
+#        then\
+#        /bin/echo $'\nThis script must be run as the root user!\n'\
+#        exit\
+#        fi\
+#        # capture user input name\
+#        while true\
+#        do\
+#        name=$(osascript -e 'Tell application \"System Events\" to display dialog \"Please enter the name for your computer or select Cancel.\" default answer \"\"' -e 'text returned of result' 2>/dev/null)\
+#        if [ $? -ne 0 ]\
+#        then # user hit cancel\
+#        exit\
+#        elif [ -z \"$name\" ];then # loop until input or cancel\
+#        osascript -e 'Tell application \"System Events\" to display alert \"Please enter a name or select Cancel... Thanks!\" as warning'\
+#        elif [ -n \"$name\" ];then # user input\
+#        break\
+#        fi\
+#        done\
+#        scutil --set ComputerName \"$name\"\
+#        scutil --set LocalHostName \"$name\"\
+#        scutil --set HostName \"$name\"\
+#        \
+#        jamf recon")
+
+	end applicationWillFinishLaunching_
+	
+	on applicationShouldTerminate_(sender)
+		-- Insert code here to do any housekeeping before your application quits 
+		return current application's NSTerminateNow
+	end applicationShouldTerminate_
+	
+end script
